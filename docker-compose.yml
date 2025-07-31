@@ -40,22 +40,8 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: 1234
     ports:
-      - 5433:5432
+      - 5433:5433
     expose:
-      - 5432
-    command: -p 5432
+      - 5433
+    command: -p 5433
 
-  ### PostgreSQL for Reports Service
-  db-reports:
-    container_name: db-reports
-    image: postgres:15.2
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ms_reports
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: 1234
-    ports:
-      - 5434:5432
-    expose:
-      - 5432
-    command: -p 5432

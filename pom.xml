@@ -17,7 +17,6 @@
     <modules>
         <module>accounts-service</module>
         <module>customers-service</module>
-        <module>reports-service</module>
         <module>transactions-service</module>
     </modules>
 

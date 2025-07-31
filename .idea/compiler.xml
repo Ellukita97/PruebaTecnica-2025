@@ -13,12 +13,12 @@
         </processorPath>
         <module name="accounts-service" />
         <module name="customers-service" />
-        <module name="reports-service" />
         <module name="transactions-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="config-server" target="24" />
+      <module name="reports-service" target="24" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
