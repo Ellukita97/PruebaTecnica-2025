@@ -5,6 +5,7 @@ import com.lucas.customers_service.model.dtos.ClientResponse;
 import com.lucas.customers_service.services.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,32 +18,32 @@ public class ClientController {
     private final ClientService clientService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public void addClient(@RequestBody ClientRequest clientRequest){
-        this.clientService.addClient(clientRequest);
+    public ResponseEntity<Void> addClient(@RequestBody ClientRequest clientRequest) {
+        clientService.addClient(clientRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<ClientResponse> getAllClients(){
-        return this.clientService.getAllClients();
+    public ResponseEntity<List<ClientResponse>> getAllClients() {
+        List<ClientResponse> clients = clientService.getAllClients();
+        return ResponseEntity.ok(clients);
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ClientResponse getClientById(@PathVariable Long id){
-        return this.clientService.getClientById(id);
+    public ResponseEntity<ClientResponse> getClientById(@PathVariable Long id) {
+        ClientResponse client = clientService.getClientById(id);
+        return ResponseEntity.ok(client);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteClient(@PathVariable Long id){
-        this.clientService.removeClient(id);
+    public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
+        clientService.removeClient(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public void updateClient(@PathVariable Long id, @RequestBody ClientRequest clientRequest){
-        this.clientService.updateClient(id, clientRequest);
+    public ResponseEntity<Void> updateClient(@PathVariable Long id, @RequestBody ClientRequest clientRequest) {
+        clientService.updateClient(id, clientRequest);
+        return ResponseEntity.ok().build();
     }
 }

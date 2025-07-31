@@ -1,6 +1,8 @@
 package com.lucas.accounts_service.services;
 
 import com.lucas.accounts_service.client.ClientAccount;
+import com.lucas.accounts_service.exeptions.ClientNotFoundException;
+import com.lucas.accounts_service.exeptions.ResourceNotFoundException;
 import com.lucas.accounts_service.model.dtos.AccountRequest;
 import com.lucas.accounts_service.model.dtos.AccountResponse;
 import com.lucas.accounts_service.model.dtos.ClientResponse;
@@ -9,7 +11,6 @@ import com.lucas.accounts_service.repositories.AccountRepository;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,16 +20,13 @@ import java.util.List;
 @Slf4j
 public class AccountService {
 
-    @Autowired
     private final AccountRepository accountRepository;
-
-    @Autowired
     private final ClientAccount clientAccount;
 
     public void addAccount(AccountRequest accountRequest) {
         searchClientById(accountRequest.getClientId());
 
-        Account account = Account.builder()
+        var account = Account.builder()
                 .accountType(accountRequest.getAccountType())
                 .initialBalance(accountRequest.getInitialBalance())
                 .status(true)
@@ -36,10 +34,13 @@ public class AccountService {
                 .build();
 
         accountRepository.save(account);
-        log.info("Account added: {}", account);
     }
 
     public void removeAccount(Long id){
+        boolean exists = accountRepository.existsById(id);
+        if (!exists) {
+            throw new ResourceNotFoundException("Account not found with id: " + id);
+        }
         accountRepository.deleteById(id);
     }
 
@@ -52,7 +53,7 @@ public class AccountService {
             account.setClientId(accountRequestUpdated.getClientId());
 
             return accountRepository.save(account);
-        }).orElseThrow(() -> new RuntimeException("Account not found with id: " + id));
+        }).orElseThrow(() -> new ResourceNotFoundException("Account not found with id: " + id));
     }
 
     public List<AccountResponse> getAllAccount(){
@@ -62,9 +63,10 @@ public class AccountService {
     }
 
     public AccountResponse getAccountById(Long id){
-        var account = accountRepository.findById(id);
+        var account = accountRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found with id: " + id));
 
-        return mapToAccountResponse(account.get());
+        return mapToAccountResponse(account);
     }
 
     private AccountResponse mapToAccountResponse(Account account){
@@ -79,18 +81,13 @@ public class AccountService {
 
     private ClientResponse searchClientById(Long clientId) {
         try {
-            ClientResponse clientResponse = clientAccount.getClientById(clientId);
-
-            if (clientResponse == null) {
-                throw new IllegalArgumentException("Client does not exist");
-            }
-
-            return clientResponse;
-
+            return clientAccount.getClientById(clientId);
         } catch (FeignException.NotFound e) {
-            throw new IllegalArgumentException("Client not found", e);
+            throw new ClientNotFoundException("Client not found", e);
         }
     }
 
 }
+
+
 

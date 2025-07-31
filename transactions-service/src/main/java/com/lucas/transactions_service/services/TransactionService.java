@@ -1,6 +1,8 @@
 package com.lucas.transactions_service.services;
 
 import com.lucas.transactions_service.account.AccountTransaction;
+import com.lucas.transactions_service.exeptions.InsufficientBalanceException;
+import com.lucas.transactions_service.exeptions.ResourceNotFoundException;
 import com.lucas.transactions_service.model.dtos.AccountResponse;
 import com.lucas.transactions_service.model.dtos.TransactionRequest;
 import com.lucas.transactions_service.model.dtos.TransactionResponse;
@@ -23,73 +25,66 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final AccountTransaction accountTransaction;
 
-    public void addTransaction(TransactionRequest request) {
-        validateAccountExists(request.getAccountNumber());
+    public void addTransaction(TransactionRequest transactionRequest){
+        int availableBalance =
+                transactionRequest.getInitialbalance() +
+                        transactionRequest.getTransactionAmount();
 
-        int availableBalance = request.getInitialbalance() + request.getTransactionAmount();
-
-        if (availableBalance < 0) {
-            throw new IllegalStateException("The account balance cannot be negative.");
+        if(availableBalance < 0){
+            throw new InsufficientBalanceException("Saldo no disponible");
         }
 
-        Transaction transaction = Transaction.builder()
-                .date(request.getDate())
-                .accountNumber(request.getAccountNumber())
-                .type(request.getType())
-                .initialbalance(request.getInitialbalance())
-                .state(request.getState())
-                .transactionAmount(request.getTransactionAmount())
+
+        getAccountById(transactionRequest.getAccountNumber());
+
+        var transaction = Transaction.builder()
+                .date(transactionRequest.getDate())
+                .accountNumber(transactionRequest.getAccountNumber())
+                .type(transactionRequest.getType())
+                .initialbalance(transactionRequest.getInitialbalance())
+                .state(transactionRequest.getState())
+                .transactionAmount(transactionRequest.getTransactionAmount())
                 .availableBalance(availableBalance)
                 .build();
 
         transactionRepository.save(transaction);
-        log.info("Transaction added: {}", transaction);
     }
 
-    public void removeTransaction(Long id) {
-        if (!transactionRepository.existsById(id)) {
-            throw new NoSuchElementException("Transaction not found with id: " + id);
+    public void removeTransaction(Long id){
+        boolean exists = transactionRepository.existsById(id);;
+        if (!exists) {
+            throw new ResourceNotFoundException("Transaction not found with id: " + id);
         }
+
         transactionRepository.deleteById(id);
     }
 
-    public Transaction updateTransaction(Long id, TransactionRequest updatedRequest) {
-        validateAccountExists(updatedRequest.getAccountNumber());
+    public Transaction updateTransaction(Long id, TransactionRequest transactionRequestUpdated) {
+        getAccountById(transactionRequestUpdated.getAccountNumber());
+        return transactionRepository.findById(id).map(transaction -> {
+            transaction.setDate(transactionRequestUpdated.getDate());
+            transaction.setAccountNumber(transactionRequestUpdated.getAccountNumber());
+            transaction.setType(transactionRequestUpdated.getType());
+            transaction.setInitialbalance(transactionRequestUpdated.getInitialbalance());
+            transaction.setState(transactionRequestUpdated.getState());
+            transaction.setTransactionAmount(transactionRequestUpdated.getTransactionAmount());
+            transaction.setAvailableBalance(transactionRequestUpdated.getAvailableBalance());
 
-        return transactionRepository.findById(id)
-                .map(transaction -> updateTransactionFields(transaction, updatedRequest))
-                .map(transactionRepository::save)
-                .orElseThrow(() -> new NoSuchElementException("Transaction not found with id: " + id));
+            return transactionRepository.save(transaction);
+        }).orElseThrow(() -> new ResourceNotFoundException("transaction not found with id: " + id));
     }
 
-    public List<TransactionResponse> getAllTransactions() {
-        return transactionRepository.findAll().stream()
-                .map(this::mapToClientResponse)
-                .toList();
+    public List<TransactionResponse> getAllTransactions(){
+        var transactions = transactionRepository.findAll();
+
+        return transactions.stream().map(this::mapToClientResponse).toList();
     }
 
-    private Transaction updateTransactionFields(Transaction transaction, TransactionRequest request) {
-        int availableBalance = request.getInitialbalance() + request.getTransactionAmount();
-
-        transaction.setDate(request.getDate());
-        transaction.setAccountNumber(request.getAccountNumber());
-        transaction.setType(request.getType());
-        transaction.setInitialbalance(request.getInitialbalance());
-        transaction.setState(request.getState());
-        transaction.setTransactionAmount(request.getTransactionAmount());
-        transaction.setAvailableBalance(availableBalance);
-        return transaction;
-    }
-
-    private TransactionResponse mapToClientResponse(Transaction transaction) {
-        String clientName = getAccountById(transaction.getAccountNumber())
-                .getClientResponse()
-                .getName();
-
+    private TransactionResponse mapToClientResponse(Transaction transaction){
         return TransactionResponse.builder()
                 .id(transaction.getId())
                 .date(transaction.getDate())
-                .clientName(clientName)
+                .clientName(getAccountById(transaction.getAccountNumber()).getClientResponse().getName())
                 .accountNumber(transaction.getAccountNumber())
                 .type(transaction.getType())
                 .initialbalance(transaction.getInitialbalance())
@@ -99,19 +94,13 @@ public class TransactionService {
                 .build();
     }
 
-    private void validateAccountExists(Long accountId) {
-        getAccountById(accountId); // Throws if not found
-    }
-
-    private AccountResponse getAccountById(Long id) {
+    private AccountResponse getAccountById(Long id){
         try {
-            AccountResponse response = accountTransaction.getAccountById(id);
-            if (response == null) {
-                throw new NoSuchElementException("Account does not exist with id: " + id);
-            }
-            return response;
+            return accountTransaction.getAccountById(id);
         } catch (FeignException.NotFound e) {
-            throw new NoSuchElementException("Account not found with id: " + id, e);
+            throw new IllegalArgumentException("Account not found", e);
         }
     }
+
 }
+

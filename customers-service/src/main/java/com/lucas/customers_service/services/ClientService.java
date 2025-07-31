@@ -1,5 +1,6 @@
 package com.lucas.customers_service.services;
 
+import com.lucas.customers_service.exeptions.ResourceNotFoundException;
 import com.lucas.customers_service.model.dtos.ClientRequest;
 import com.lucas.customers_service.model.dtos.ClientResponse;
 import com.lucas.customers_service.model.entities.Client;
@@ -32,11 +33,14 @@ public class ClientService {
                 .build();
 
         clientRepository.save(client);
-
-        log.info("Client added: {}", client);
     }
 
     public void removeClient(Long id){
+        boolean exists = clientRepository.existsById(id);;
+        if (!exists) {
+            throw new ResourceNotFoundException("Client not found with id: " + id);
+        }
+
         clientRepository.deleteById(id);
     }
 
@@ -51,21 +55,22 @@ public class ClientService {
             client.setPassword(clientRequestUpdated.getPassword());
             client.setStatus(true);
             return clientRepository.save(client);
-        }).orElseThrow(() -> new RuntimeException("Client not found with id: " + id));
+        }).orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + id));
     }
 
 
 
     public List<ClientResponse> getAllClients(){
         var clients = clientRepository.findAll();
-
         return clients.stream().map(this::mapToClientResponse).toList();
     }
 
     public ClientResponse getClientById(Long id){
-        var client = clientRepository.findById(id);
+        System.out.println("Entro");
+        var client = clientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + id));
 
-        return mapToClientResponse(client.get());
+        return mapToClientResponse(client);
     }
 
 
