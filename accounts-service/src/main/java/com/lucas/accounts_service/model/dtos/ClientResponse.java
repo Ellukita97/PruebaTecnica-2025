@@ -1,4 +1,4 @@
-package com.lucas.customers_service.model.dtos;
+package com.lucas.accounts_service.model.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +18,5 @@ public class ClientResponse {
     private String identification;
     private String address;
     private String phoneNumber;
-    private String password;
-    private Boolean status;
+    private String status;
 }

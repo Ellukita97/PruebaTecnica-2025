@@ -28,7 +28,7 @@ public class ClientService {
                 .address(clientRequest.getAddress())
                 .phoneNumber(clientRequest.getPhoneNumber())
                 .password(clientRequest.getPassword())
-                .status(clientRequest.getStatus())
+                .status(true)
                 .build();
 
         clientRepository.save(client);
@@ -49,7 +49,7 @@ public class ClientService {
             client.setAddress(clientRequestUpdated.getAddress());
             client.setPhoneNumber(clientRequestUpdated.getPhoneNumber());
             client.setPassword(clientRequestUpdated.getPassword());
-            client.setStatus(clientRequestUpdated.getStatus());
+            client.setStatus(true);
             return clientRepository.save(client);
         }).orElseThrow(() -> new RuntimeException("Client not found with id: " + id));
     }
@@ -60,6 +60,12 @@ public class ClientService {
         var clients = clientRepository.findAll();
 
         return clients.stream().map(this::mapToClientResponse).toList();
+    }
+
+    public ClientResponse getClientById(Long id){
+        var client = clientRepository.findById(id);
+
+        return mapToClientResponse(client.get());
     }
 
 

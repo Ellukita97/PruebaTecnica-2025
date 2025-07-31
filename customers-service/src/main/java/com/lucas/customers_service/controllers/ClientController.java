@@ -28,6 +28,12 @@ public class ClientController {
         return this.clientService.getAllClients();
     }
 
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ClientResponse getClientById(@PathVariable Long id){
+        return this.clientService.getClientById(id);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteClient(@PathVariable Long id){

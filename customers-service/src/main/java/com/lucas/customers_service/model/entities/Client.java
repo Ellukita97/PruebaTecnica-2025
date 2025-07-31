@@ -17,5 +17,5 @@ public class Client extends Person{
     private Long clientId;
 
     private String password;
-    private String status;
+    private Boolean status;
 }
