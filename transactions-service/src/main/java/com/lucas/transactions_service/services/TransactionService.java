@@ -4,6 +4,7 @@ import com.lucas.transactions_service.account.AccountTransaction;
 import com.lucas.transactions_service.exeptions.InsufficientBalanceException;
 import com.lucas.transactions_service.exeptions.ResourceNotFoundException;
 import com.lucas.transactions_service.model.dtos.AccountResponse;
+import com.lucas.transactions_service.model.dtos.ReportRequest;
 import com.lucas.transactions_service.model.dtos.TransactionRequest;
 import com.lucas.transactions_service.model.dtos.TransactionResponse;
 import com.lucas.transactions_service.model.entities.Transaction;
@@ -11,7 +12,6 @@ import com.lucas.transactions_service.repositories.TransactionRepository;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -80,6 +80,17 @@ public class TransactionService {
         return transactions.stream().map(this::mapToClientResponse).toList();
     }
 
+    public List<TransactionResponse> getReportsBetweenDates(ReportRequest reportRequest){
+
+        if (reportRequest.getStartDate().isAfter(reportRequest.getEndDate())) {
+            throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+
+        var transactions = transactionRepository.findByDateBetween(reportRequest.getStartDate(),reportRequest.getEndDate());
+
+        return transactions.stream().map(this::mapToClientResponse).toList();
+    }
+
     private TransactionResponse mapToClientResponse(Transaction transaction){
         return TransactionResponse.builder()
                 .id(transaction.getId())
@@ -98,7 +109,7 @@ public class TransactionService {
         try {
             return accountTransaction.getAccountById(id);
         } catch (FeignException.NotFound e) {
-            throw new IllegalArgumentException("Account not found", e);
+            throw new ResourceNotFoundException("Account not found");
         }
     }
 

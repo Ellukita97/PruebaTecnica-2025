@@ -1,5 +1,6 @@
 package com.lucas.transactions_service.controllers;
 
+import com.lucas.transactions_service.model.dtos.ReportRequest;
 import com.lucas.transactions_service.model.dtos.TransactionRequest;
 import com.lucas.transactions_service.model.dtos.TransactionResponse;
 import com.lucas.transactions_service.model.entities.Transaction;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -41,6 +43,14 @@ public class TransactionController {
     public ResponseEntity<Void> updateTransaction(@PathVariable Long id, @RequestBody TransactionRequest transactionRequest) {
         transactionService.updateTransaction(id, transactionRequest);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/reportes")
+    public ResponseEntity<List<TransactionResponse>> getReportsBetweenDates(@ModelAttribute ReportRequest dates) {
+
+        List<TransactionResponse> transactions = transactionService.getReportsBetweenDates(dates);
+
+        return ResponseEntity.ok(transactions);
     }
 
 }

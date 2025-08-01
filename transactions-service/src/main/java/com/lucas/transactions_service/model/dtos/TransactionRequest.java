@@ -5,13 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class TransactionRequest {
 
-    private String date;
+    private LocalDate date;
     private Long accountNumber;
     private String type;
     private Integer initialbalance;

@@ -20,7 +20,7 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String date;
+    private LocalDate date;
     private Long accountNumber;
     private String type;
     private Integer initialbalance;

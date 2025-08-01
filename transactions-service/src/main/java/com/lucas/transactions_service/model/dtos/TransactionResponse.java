@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,7 +15,7 @@ public class TransactionResponse {
 
     private Long id;
 
-    private String date;
+    private LocalDate date;
     private String clientName;
     private Long accountNumber;
     private String type;

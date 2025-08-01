@@ -45,3 +45,17 @@ services:
       - 5433
     command: -p 5433
 
+  ### Postgres database for customers integration test
+  db-customers-test:
+    container_name: db-customers-test
+    image: postgres:15.2
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ms_customers-test
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - 5434:5434
+    expose:
+      - 5434
+    command: -p 5434

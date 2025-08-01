@@ -66,7 +66,6 @@ public class ClientService {
     }
 
     public ClientResponse getClientById(Long id){
-        System.out.println("Entro");
         var client = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + id));
 
@@ -74,7 +73,7 @@ public class ClientService {
     }
 
 
-    private ClientResponse mapToClientResponse(Client client){
+    public ClientResponse mapToClientResponse(Client client){
         return ClientResponse.builder()
                 .id(client.getClientId())
                 .name(client.getName())
