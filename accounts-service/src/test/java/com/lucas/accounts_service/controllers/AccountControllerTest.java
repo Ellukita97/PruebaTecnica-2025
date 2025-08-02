@@ -83,11 +83,13 @@ class AccountControllerTest {
 
     @Test
     void testGetAllAccountReturnsAccountList() {
-        AccountResponse acc1 = new AccountResponse(1L, "Ahorros",1000.0, true,
-                new ClientResponse(1L,"Juan","M",21,"123123123","Calle 125","092444444","True") );
+        AccountResponse acc1 = new AccountResponse(1L, "Ahorros",1000.0, true
+                , new ClientResponse(1L,"Juan","M",21,"123123123","Calle 125","092444444","pass",true)
+        );
 
-        AccountResponse acc2 = new AccountResponse(2L, "Corriente",2000.0, true,
-                new ClientResponse(1L,"Juan","M",21,"123123123","Calle 125","092444444","True") );
+        AccountResponse acc2 = new AccountResponse(2L, "Corriente",2000.0, true
+                , new ClientResponse(1L,"Juan","M",21,"123123123","Calle 125","092444444","pass",true)
+        );
 
         List<AccountResponse> accountList = Arrays.asList(acc1, acc2);
         when(accountService.getAllAccount()).thenReturn(accountList);
@@ -106,8 +108,9 @@ class AccountControllerTest {
     @Test
     void testGetAccountByIdReturnsAccount() {
         Long accountId = 1L;
-        AccountResponse expectedAccount = new AccountResponse(accountId, "Ahorros",1500.0, true,
-                new ClientResponse(1L,"Juan","M",21,"123123123","Calle 125","092444444","True") );
+        AccountResponse expectedAccount = new AccountResponse(accountId, "Ahorros",1500.0, true
+                , new ClientResponse(1L,"Juan","M",21,"123123123","Calle 125","092444444","pass",true)
+        );
 
         when(accountService.getAccountById(accountId)).thenReturn(expectedAccount);
 

@@ -25,7 +25,6 @@ public class AccountService {
 
     public void addAccount(AccountRequest accountRequest) {
         searchClientById(accountRequest.getClientId());
-
         var account = Account.builder()
                 .accountType(accountRequest.getAccountType())
                 .initialBalance(accountRequest.getInitialBalance())
@@ -82,12 +81,20 @@ public class AccountService {
     private ClientResponse searchClientById(Long clientId) {
         try {
             return clientAccount.getClientById(clientId);
+
         } catch (FeignException.NotFound e) {
-            throw new ClientNotFoundException("Client not found", e);
+            throw new ClientNotFoundException("Client with ID " + clientId + " not found", e);
+
+        } catch (FeignException e) {
+            log.error("Feign error - Status: {}, Body: {}, Message: {}", e.status(), e.contentUTF8(), e.getMessage());
+            throw new RuntimeException("Error calling the customer service", e);
+
+        } catch (Exception e) {
+            log.error("Unexpected error while searching for client", e);
+            throw new RuntimeException("Unexpected error", e);
         }
     }
 
 }
-
 
 

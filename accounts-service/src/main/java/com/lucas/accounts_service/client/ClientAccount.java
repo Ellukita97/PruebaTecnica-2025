@@ -7,9 +7,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.lang.module.ResolutionException;
 
-@FeignClient(name = "client", url = "http://localhost:8082")
+@FeignClient(name = "customers-service", url = "http://customers-service:8082")
 public interface ClientAccount {
 
     @GetMapping("/api/clientes/{id}")
     ClientResponse getClientById(@PathVariable("id") Long id);
 }
+

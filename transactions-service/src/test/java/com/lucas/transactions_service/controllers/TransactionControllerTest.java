@@ -6,7 +6,6 @@ import com.lucas.transactions_service.model.dtos.TransactionResponse;
 import com.lucas.transactions_service.model.entities.Transaction;
 import com.lucas.transactions_service.services.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;

@@ -1,13 +1,12 @@
 package com.lucas.accounts_service.model.dtos;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Builder
 public class ClientResponse {
 
@@ -18,5 +17,6 @@ public class ClientResponse {
     private String identification;
     private String address;
     private String phoneNumber;
-    private String status;
+    private String password;
+    private Boolean status;
 }

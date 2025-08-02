@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -110,8 +109,15 @@ public class TransactionService {
             return accountTransaction.getAccountById(id);
         } catch (FeignException.NotFound e) {
             throw new ResourceNotFoundException("Account not found");
+
+        } catch (FeignException e) {
+            log.error("Feign error - Status: {}, Body: {}, Message: {}", e.status(), e.contentUTF8(), e.getMessage());
+            throw new RuntimeException("Error calling the account service", e);
+
+        } catch (Exception e) {
+            log.error("Unexpected error while searching for account", e);
+            throw new RuntimeException("Unexpected error", e);
         }
     }
 
 }
-
